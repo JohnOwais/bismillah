@@ -129,7 +129,7 @@ class LoginButton extends StatelessWidget {
               );
             }
           }
-      },
+        },
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color.fromARGB(255, 0, 76, 150)
       ),
@@ -138,7 +138,7 @@ class LoginButton extends StatelessWidget {
         child: Text("Login", style: TextStyle(
           fontSize: 15,
           color: Colors.white
-        ),),
+          ),),
       ))),
       ]),
     );
