@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets("Test for Bismillah App", (WidgetTester tester) async {
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const Bismillah());
     expect(find.byType(Container), findsOneWidget);
   });
 }
