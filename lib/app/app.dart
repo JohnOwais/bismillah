@@ -1,8 +1,8 @@
-import 'package:bismillah/views/home_view.dart';
+import 'package:bismillah/views/login_view.dart';
 import 'package:flutter/material.dart';
 
-class MyApp extends StatelessWidget {
-  const MyApp({
+class Bismillah extends StatelessWidget {
+  const Bismillah({
     super.key,
   });
 
@@ -10,10 +10,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         title: "Bismillah",
-        theme: ThemeData(
-          primarySwatch: Colors.blue
-        ),
-        home: const HomeView()
-    );
+        theme: ThemeData(primarySwatch: Colors.blue),
+        home: const LoginView());
   }
 }

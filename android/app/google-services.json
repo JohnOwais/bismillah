@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "454297523565",
+    "firebase_url": "https://bismillah-f5675-default-rtdb.firebaseio.com",
+    "project_id": "bismillah-f5675",
+    "storage_bucket": "bismillah-f5675.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:454297523565:android:12a356a935a2285755b664",
+        "android_client_info": {
+          "package_name": "com.example.bismillah"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBbbr0FRtYxYTrQodDf4ti_7M6rLRjCT7A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
