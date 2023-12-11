@@ -22,6 +22,11 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+          toolbarHeight: 0,
+          systemOverlayStyle: const SystemUiOverlayStyle(
+            statusBarColor: Color.fromARGB(50, 0, 0, 0),
+          )),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(

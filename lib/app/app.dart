@@ -8,9 +8,6 @@ class Bismillah extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        title: "Bismillah",
-        theme: ThemeData(primarySwatch: Colors.blue),
-        home: const LoginView());
+    return const MaterialApp(title: "Bismillah", home: LoginView());
   }
 }

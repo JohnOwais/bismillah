@@ -40,6 +40,16 @@ class _RegisterViewState extends State<RegisterView> {
               ((route) => false));
         },
         child: Scaffold(
+          appBar: AppBar(
+              title: const Text(
+                "User Registration",
+                style: TextStyle(color: Colors.white),
+              ),
+              centerTitle: true,
+              backgroundColor: Colors.blue,
+              systemOverlayStyle: const SystemUiOverlayStyle(
+                statusBarColor: Color.fromARGB(30, 0, 0, 0),
+              )),
           body: SafeArea(
             child: SingleChildScrollView(
               child: Column(
@@ -222,8 +232,7 @@ class RegisterButton extends StatelessWidget {
           Expanded(
             child: ElevatedButton(
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(
-                      const Color.fromARGB(255, 0, 76, 150)),
+                  backgroundColor: MaterialStateProperty.all(Colors.blue),
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                     const RoundedRectangleBorder(
                       borderRadius: BorderRadius.zero,
