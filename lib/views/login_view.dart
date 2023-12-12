@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -179,7 +181,6 @@ class LoginButton extends StatelessWidget {
                             textColor: Colors.white,
                             fontSize: 16.0);
                         updateLoading(false);
-                        // ignore: use_build_context_synchronously
                         Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
@@ -187,25 +188,28 @@ class LoginButton extends StatelessWidget {
                                     HomePage(name: name, phone: username)),
                             ((route) => false));
                       } else {
-                        Fluttertoast.showToast(
-                            msg: "Invalid Password",
-                            toastLength: Toast.LENGTH_LONG,
-                            gravity: ToastGravity.CENTER,
-                            timeInSecForIosWeb: 1,
-                            backgroundColor: Colors.red,
-                            textColor: Colors.white,
-                            fontSize: 16.0);
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(
+                                content: Text(
+                                  "Invalid Password",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                backgroundColor: Colors.red));
                         updateLoading(false);
                       }
                     } else {
-                      Fluttertoast.showToast(
-                          msg: "Phone Number Not Registered",
-                          toastLength: Toast.LENGTH_LONG,
-                          gravity: ToastGravity.CENTER,
-                          timeInSecForIosWeb: 1,
-                          backgroundColor: Colors.red,
-                          textColor: Colors.white,
-                          fontSize: 16.0);
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text(
+                            "Phone Number Not Registered",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          backgroundColor: Colors.red));
                       updateLoading(false);
                     }
                   }

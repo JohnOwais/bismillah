@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:bismillah/views/login_view.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +24,7 @@ class _RegisterViewState extends State<RegisterView> {
   final valid = [true, true, true, true, true, true, true];
   late DatabaseReference databaseReference;
   bool isLoading = false;
+  final phoneFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -103,6 +106,7 @@ class _RegisterViewState extends State<RegisterView> {
                     controller: phoneController,
                     valid: valid[4],
                     maxLength: 10,
+                    focusNode: phoneFocusNode,
                   ),
                   InputText(
                     hint: "Password",
@@ -174,6 +178,7 @@ class _RegisterViewState extends State<RegisterView> {
                         isLoading = loading;
                       });
                     },
+                    phoneFocusNode: phoneFocusNode,
                   ),
                 ],
               ),
@@ -202,7 +207,8 @@ class RegisterButton extends StatelessWidget {
       required this.updateConfirmPassValidity,
       required this.databaseReference,
       required this.isLoading,
-      required this.updateLoading});
+      required this.updateLoading,
+      required this.phoneFocusNode});
 
   final TextEditingController name;
   final TextEditingController state;
@@ -221,6 +227,7 @@ class RegisterButton extends StatelessWidget {
   final DatabaseReference databaseReference;
   final bool isLoading;
   final Function(bool) updateLoading;
+  final FocusNode phoneFocusNode;
 
   @override
   Widget build(BuildContext context) {
@@ -262,14 +269,14 @@ class RegisterButton extends StatelessWidget {
                   } else if (confirmPass.text.length < 8) {
                     updateConfirmPassValidity(false);
                   } else if (password.text != confirmPass.text) {
-                    Fluttertoast.showToast(
-                        msg: "Password doesn't match with Confirm Password",
-                        toastLength: Toast.LENGTH_LONG,
-                        gravity: ToastGravity.CENTER,
-                        timeInSecForIosWeb: 1,
-                        backgroundColor: Colors.red,
-                        textColor: Colors.white,
-                        fontSize: 16.0);
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text(
+                          "Password doesn't match with Confirm Password",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                        backgroundColor: Colors.red));
                   } else {
                     updateLoading(true);
                     DataSnapshot? snapshot = (await query
@@ -295,7 +302,6 @@ class RegisterButton extends StatelessWidget {
                           backgroundColor: Colors.green,
                           textColor: Colors.white,
                           fontSize: 16.0);
-                      // ignore: use_build_context_synchronously
                       Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
@@ -303,15 +309,19 @@ class RegisterButton extends StatelessWidget {
                           ((route) => false));
                       updateLoading(false);
                     } else {
-                      Fluttertoast.showToast(
-                          msg: "Phone Number Already Registered",
-                          toastLength: Toast.LENGTH_LONG,
-                          gravity: ToastGravity.CENTER,
-                          timeInSecForIosWeb: 1,
-                          backgroundColor: Colors.red,
-                          textColor: Colors.white,
-                          fontSize: 16.0);
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text(
+                            "Phone Number Already Registered",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          backgroundColor: Colors.red));
                       updateLoading(false);
+                      phone.text = "";
+                      await Future.delayed(const Duration(seconds: 4));
+                      FocusScope.of(context).requestFocus(phoneFocusNode);
                     }
                   }
                 },
@@ -344,7 +354,8 @@ class InputText extends StatelessWidget {
       required this.keyboard,
       required this.controller,
       required this.valid,
-      required this.maxLength});
+      required this.maxLength,
+      this.focusNode});
 
   final String hint;
   final IconData icon;
@@ -354,6 +365,7 @@ class InputText extends StatelessWidget {
   final TextEditingController controller;
   final bool valid;
   final int maxLength;
+  final FocusNode? focusNode;
 
   @override
   Widget build(BuildContext context) {
@@ -376,6 +388,7 @@ class InputText extends StatelessWidget {
         inputFormatters: [
           LengthLimitingTextInputFormatter(maxLength),
         ],
+        focusNode: focusNode,
       ),
     );
   }
