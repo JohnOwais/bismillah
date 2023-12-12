@@ -156,7 +156,7 @@ class LoginButton extends StatelessWidget {
                     updatePasswordValidity(false);
                   } else {
                     updateLoading(true);
-                    String username = userController.text.toLowerCase().trim();
+                    String username = userController.text;
                     String enteredPassword = passController.text;
                     DataSnapshot? snapshot = (await query
                             .orderByChild('phone')
@@ -166,6 +166,7 @@ class LoginButton extends StatelessWidget {
                     if (snapshot.value != null) {
                       Map<dynamic, dynamic>? userData =
                           snapshot.value as Map<dynamic, dynamic>?;
+                      String name = userData?.values.first['name'];
                       String storedPassword =
                           userData?.values.first['password'];
                       if (enteredPassword == storedPassword) {
@@ -182,7 +183,8 @@ class LoginButton extends StatelessWidget {
                         Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const HomePage()),
+                                builder: (context) =>
+                                    HomePage(name: name, phone: username)),
                             ((route) => false));
                       } else {
                         Fluttertoast.showToast(
