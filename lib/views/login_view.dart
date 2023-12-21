@@ -166,15 +166,14 @@ class LoginButton extends StatelessWidget {
                             .once())
                         .snapshot;
                     if (snapshot.value != null) {
-                      Map<dynamic, dynamic>? userData =
-                          snapshot.value as Map<dynamic, dynamic>?;
-                      String name = userData?.values.first['name'];
-                      String storedPassword =
-                          userData?.values.first['password'];
+                      Map<dynamic, dynamic> userData =
+                          snapshot.value as Map<dynamic, dynamic>;
+                      String name = userData.values.first['name'];
+                      String storedPassword = userData.values.first['password'];
                       if (enteredPassword == storedPassword) {
                         Fluttertoast.showToast(
                             msg: "Login Success",
-                            toastLength: Toast.LENGTH_LONG,
+                            toastLength: Toast.LENGTH_SHORT,
                             gravity: ToastGravity.CENTER,
                             timeInSecForIosWeb: 1,
                             backgroundColor: Colors.green,

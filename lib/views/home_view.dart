@@ -1,3 +1,8 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:bismillah/views/login_view.dart';
+import 'package:bismillah/views/password_view.dart';
+import 'package:bismillah/views/prifile_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -14,6 +19,33 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String selectedValue = '1';
+
+  Future<bool?> _showLogoutConfirmationDialog() async {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Logout"),
+          content: const Text("Are you sure you want to logout?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: const Text("No"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: const Text("Yes"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final String name = widget.name;
@@ -42,6 +74,7 @@ class _HomePageState extends State<HomePage> {
             style: const TextStyle(color: Colors.white, fontSize: 20),
           ),
           backgroundColor: Colors.green,
+          iconTheme: const IconThemeData(color: Colors.white),
           systemOverlayStyle: const SystemUiOverlayStyle(
             statusBarColor: Color.fromARGB(30, 0, 0, 0),
           ),
@@ -51,7 +84,47 @@ class _HomePageState extends State<HomePage> {
                 Icons.more_vert,
                 color: Colors.white,
               ),
-              onSelected: (String value) {
+              onSelected: (String value) async {
+                if (value == '1') {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              ProfileView(phone: phoneNumber)));
+                } else if (value == '2') {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              PasswordView(phone: phoneNumber)));
+                } else {
+                  bool confirmLogout =
+                      await _showLogoutConfirmationDialog() as bool;
+                  if (confirmLogout) {
+                    Fluttertoast.showToast(
+                        msg: "Logged Out",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.CENTER,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: Colors.green,
+                        textColor: Colors.white,
+                        fontSize: 16.0);
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const LoginView()),
+                        ((route) => false));
+                  } else {
+                    Fluttertoast.showToast(
+                        msg: "Cancelled",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.CENTER,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: Colors.red,
+                        textColor: Colors.white,
+                        fontSize: 16.0);
+                  }
+                }
                 setState(() {
                   selectedValue = value;
                 });
@@ -63,7 +136,7 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Icon(Icons.account_circle, color: Colors.blue),
                       SizedBox(width: 8),
-                      Text('Profile'),
+                      Text('Edit Profile'),
                     ],
                   ),
                 ),
@@ -71,9 +144,9 @@ class _HomePageState extends State<HomePage> {
                   value: '2',
                   child: Row(
                     children: [
-                      Icon(Icons.settings, color: Colors.green),
+                      Icon(Icons.lock, color: Colors.green),
                       SizedBox(width: 8),
-                      Text('Setting'),
+                      Text('Change Password'),
                     ],
                   ),
                 ),

@@ -22,15 +22,8 @@ class _RegisterViewState extends State<RegisterView> {
   final passwordController = TextEditingController();
   final confirmPassController = TextEditingController();
   final valid = [true, true, true, true, true, true, true];
-  late DatabaseReference databaseReference;
   bool isLoading = false;
   final phoneFocusNode = FocusNode();
-
-  @override
-  void initState() {
-    databaseReference = FirebaseDatabase.instance.ref().child("Users");
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -171,7 +164,6 @@ class _RegisterViewState extends State<RegisterView> {
                         valid[6] = isValid;
                       });
                     },
-                    databaseReference: databaseReference,
                     isLoading: isLoading,
                     updateLoading: (bool loading) {
                       setState(() {
@@ -205,7 +197,6 @@ class RegisterButton extends StatelessWidget {
       required this.updatePhoneValidity,
       required this.updatePasswordValidity,
       required this.updateConfirmPassValidity,
-      required this.databaseReference,
       required this.isLoading,
       required this.updateLoading,
       required this.phoneFocusNode});
@@ -224,7 +215,6 @@ class RegisterButton extends StatelessWidget {
   final Function(bool) updatePhoneValidity;
   final Function(bool) updatePasswordValidity;
   final Function(bool) updateConfirmPassValidity;
-  final DatabaseReference databaseReference;
   final bool isLoading;
   final Function(bool) updateLoading;
   final FocusNode phoneFocusNode;
@@ -293,6 +283,8 @@ class RegisterButton extends StatelessWidget {
                         'phone': phone.text,
                         'password': password.text
                       };
+                      DatabaseReference databaseReference =
+                          query as DatabaseReference;
                       databaseReference.push().set(user);
                       Fluttertoast.showToast(
                           msg: "Registered Successfully",
