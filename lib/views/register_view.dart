@@ -41,8 +41,8 @@ class _RegisterViewState extends State<RegisterView> {
                 "User Registration",
                 style: TextStyle(color: Colors.white),
               ),
-              centerTitle: true,
               backgroundColor: Colors.blue,
+              iconTheme: const IconThemeData(color: Colors.white),
               systemOverlayStyle: const SystemUiOverlayStyle(
                 statusBarColor: Color.fromARGB(30, 0, 0, 0),
               )),
@@ -244,6 +244,7 @@ class RegisterButton extends StatelessWidget {
                   updatePhoneValidity(true);
                   updatePasswordValidity(true);
                   updateConfirmPassValidity(true);
+                  name.text = name.text.trim();
                   if (name.text.length < 3) {
                     updateNameValidity(false);
                   } else if (state.text.isEmpty) {
@@ -294,11 +295,7 @@ class RegisterButton extends StatelessWidget {
                           backgroundColor: Colors.green,
                           textColor: Colors.white,
                           fontSize: 16.0);
-                      Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const LoginView()),
-                          ((route) => false));
+                      Navigator.pop(context);
                       updateLoading(false);
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(

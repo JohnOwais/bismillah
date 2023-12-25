@@ -29,6 +29,7 @@ class _LoginViewState extends State<LoginView> {
           systemOverlayStyle: const SystemUiOverlayStyle(
             statusBarColor: Color.fromARGB(50, 0, 0, 0),
           )),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -100,11 +101,11 @@ class RegisterButton extends StatelessWidget {
         Expanded(
             child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const RegisterView()),
-                      ((route) => false));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const RegisterView()),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                     backgroundColor: const Color.fromARGB(255, 0, 194, 253)),
@@ -146,51 +147,66 @@ class LoginButton extends StatelessWidget {
     Query query = FirebaseDatabase.instance.ref('Users');
     return Padding(
       padding: const EdgeInsets.fromLTRB(30, 8, 30, 8),
-      child: Row(children: [
-        Expanded(
-            child: ElevatedButton(
-                onPressed: () async {
-                  updateUserValidity(true);
-                  updatePasswordValidity(true);
-                  if (userController.text.length < 10) {
-                    updateUserValidity(false);
-                  } else if (passController.text.length < 8) {
-                    updatePasswordValidity(false);
-                  } else {
-                    updateLoading(true);
-                    String username = userController.text;
-                    String enteredPassword = passController.text;
-                    DataSnapshot? snapshot = (await query
-                            .orderByChild('phone')
-                            .equalTo(username)
-                            .once())
-                        .snapshot;
-                    if (snapshot.value != null) {
-                      Map<dynamic, dynamic> userData =
-                          snapshot.value as Map<dynamic, dynamic>;
-                      String name = userData.values.first['name'];
-                      String storedPassword = userData.values.first['password'];
-                      if (enteredPassword == storedPassword) {
-                        Fluttertoast.showToast(
-                            msg: "Login Success",
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.CENTER,
-                            timeInSecForIosWeb: 1,
-                            backgroundColor: Colors.green,
-                            textColor: Colors.white,
-                            fontSize: 16.0);
-                        updateLoading(false);
-                        Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    HomePage(name: name, phone: username)),
-                            ((route) => false));
+      child: Row(
+        children: [
+          Expanded(
+              child: ElevatedButton(
+                  onPressed: () async {
+                    updateUserValidity(true);
+                    updatePasswordValidity(true);
+                    if (userController.text.length < 10) {
+                      updateUserValidity(false);
+                    } else if (passController.text.length < 8) {
+                      updatePasswordValidity(false);
+                    } else {
+                      updateLoading(true);
+                      String username = userController.text;
+                      String enteredPassword = passController.text;
+                      DataSnapshot? snapshot = (await query
+                              .orderByChild('phone')
+                              .equalTo(username)
+                              .once())
+                          .snapshot;
+                      if (snapshot.value != null) {
+                        Map<dynamic, dynamic> userData =
+                            snapshot.value as Map<dynamic, dynamic>;
+                        String name = userData.values.first['name'];
+                        String storedPassword =
+                            userData.values.first['password'];
+                        if (enteredPassword == storedPassword) {
+                          Fluttertoast.showToast(
+                              msg: "Login Success",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.CENTER,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: Colors.green,
+                              textColor: Colors.white,
+                              fontSize: 16.0);
+                          updateLoading(false);
+                          Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      HomePage(name: name, phone: username)),
+                              ((route) => false));
+                        } else {
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(const SnackBar(
+                                  content: Text(
+                                    "Invalid Password",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  backgroundColor: Colors.red));
+                          updateLoading(false);
+                        }
                       } else {
                         ScaffoldMessenger.of(context)
                             .showSnackBar(const SnackBar(
                                 content: Text(
-                                  "Invalid Password",
+                                  "Phone Number Not Registered",
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                       color: Colors.white,
@@ -199,35 +215,24 @@ class LoginButton extends StatelessWidget {
                                 backgroundColor: Colors.red));
                         updateLoading(false);
                       }
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                          content: Text(
-                            "Phone Number Not Registered",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          backgroundColor: Colors.red));
-                      updateLoading(false);
                     }
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 0, 76, 150)),
-                child: Padding(
-                  padding: EdgeInsets.all(isLoading ? 8.5 : 16),
-                  child: isLoading
-                      ? const CircularProgressIndicator(
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
-                        )
-                      : const Text(
-                          "Login",
-                          style: TextStyle(fontSize: 15, color: Colors.white),
-                        ),
-                ))),
-      ]),
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 0, 76, 150)),
+                  child: Padding(
+                    padding: EdgeInsets.all(isLoading ? 8.5 : 16),
+                    child: isLoading
+                        ? const CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                          )
+                        : const Text(
+                            "Login",
+                            style: TextStyle(fontSize: 15, color: Colors.white),
+                          ),
+                  ))),
+        ],
+      ),
     );
   }
 }
