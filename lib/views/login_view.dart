@@ -1,5 +1,6 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, empty_catches, library_private_types_in_public_api
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -79,9 +80,336 @@ class _LoginViewState extends State<LoginView> {
                   });
                 },
               ),
-              const RegisterButton()
+              const RegisterButton(),
+              const SizedBox(height: 20),
+              const LoginUsingOTP()
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class LoginUsingOTP extends StatefulWidget {
+  const LoginUsingOTP({
+    super.key,
+  });
+
+  @override
+  State<LoginUsingOTP> createState() => _LoginUsingOTPState();
+}
+
+class _LoginUsingOTPState extends State<LoginUsingOTP> {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text("Forgot passward? "),
+        GestureDetector(
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return const OtpDialog();
+              },
+            );
+          },
+          child: const Text(
+            "Login using OTP",
+            style: TextStyle(
+                color: Color.fromARGB(255, 0, 76, 150),
+                fontWeight: FontWeight.bold),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class OtpDialog extends StatefulWidget {
+  const OtpDialog({
+    super.key,
+  });
+
+  @override
+  State<OtpDialog> createState() => _OtpDialogState();
+}
+
+class _OtpDialogState extends State<OtpDialog> {
+  final phoneController = TextEditingController();
+  bool validPhone = true;
+  bool isOtpLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              OtpTextField(textController: phoneController, valid: validPhone),
+              OtpButton(
+                textController: phoneController,
+                isLoading: isOtpLoading,
+                updateOTPValidity: (bool isValid) {
+                  setState(() {
+                    validPhone = isValid;
+                  });
+                },
+                updateOTPLoading: (bool isValid) {
+                  setState(() {
+                    isOtpLoading = isValid;
+                  });
+                },
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class OtpButton extends StatelessWidget {
+  const OtpButton({
+    super.key,
+    required this.textController,
+    required this.isLoading,
+    required this.updateOTPValidity,
+    required this.updateOTPLoading,
+  });
+
+  final TextEditingController textController;
+  final bool isLoading;
+  final Function(bool) updateOTPValidity;
+  final Function(bool) updateOTPLoading;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+      child: ElevatedButton(
+        onPressed: () async {
+          updateOTPValidity(true);
+          if (textController.text.length < 10) {
+            updateOTPValidity(false);
+          } else {
+            updateOTPLoading(true);
+            Query query = FirebaseDatabase.instance.ref('Users');
+            DataSnapshot? snapshot = (await query
+                    .orderByChild('phone')
+                    .equalTo(textController.text)
+                    .once())
+                .snapshot;
+            if (snapshot.value != null) {
+              Map<dynamic, dynamic> userData =
+                  snapshot.value as Map<dynamic, dynamic>;
+              String name = userData.values.first['name'];
+              try {
+                await FirebaseAuth.instance.verifyPhoneNumber(
+                  phoneNumber: '+91${textController.text}',
+                  verificationCompleted:
+                      (PhoneAuthCredential credential) async {
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => HomePage(
+                                name: name, phone: textController.text)),
+                        ((route) => false));
+                  },
+                  verificationFailed: (FirebaseAuthException e) {},
+                  codeSent: (String verificationId, int? resendToken) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => OtpVerificationScreen(
+                          verificationId: verificationId,
+                          phoneNumber: textController.text,
+                        ),
+                      ),
+                    );
+                  },
+                  codeAutoRetrievalTimeout: (String verificationId) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text(
+                          "OTP Expired !!!",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                        backgroundColor: Colors.red));
+                  },
+                  timeout: const Duration(seconds: 60),
+                );
+                updateOTPLoading(false);
+              } catch (e) {}
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text(
+                    "Phone Number Not Registered",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                  backgroundColor: Colors.red));
+              updateOTPLoading(false);
+            }
+          }
+        },
+        style: ElevatedButton.styleFrom(
+            minimumSize: const Size(double.infinity, 50),
+            backgroundColor: const Color.fromARGB(255, 0, 76, 150)),
+        child: Padding(
+          padding: EdgeInsets.all(isLoading ? 8.5 : 16),
+          child: isLoading
+              ? const CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                )
+              : const Text(
+                  "Get OTP",
+                  style: TextStyle(color: Colors.white),
+                ),
+        ),
+      ),
+    );
+  }
+}
+
+class OtpTextField extends StatelessWidget {
+  const OtpTextField({
+    super.key,
+    required this.textController,
+    required this.valid,
+  });
+
+  final TextEditingController textController;
+  final bool valid;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: textController,
+      keyboardType: TextInputType.number,
+      maxLength: 10,
+      decoration: InputDecoration(
+          border: const OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.black)),
+          focusedBorder: const OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.black)),
+          hintText: "Phone no.",
+          errorText: valid ? null : "Can't be less than 10 digits"),
+      style: const TextStyle(color: Color.fromARGB(255, 0, 76, 150)),
+    );
+  }
+}
+
+class OtpVerificationScreen extends StatefulWidget {
+  const OtpVerificationScreen(
+      {super.key, required this.verificationId, required this.phoneNumber});
+
+  final String verificationId;
+  final String phoneNumber;
+
+  @override
+  _OtpVerificationScreenState createState() => _OtpVerificationScreenState();
+}
+
+class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
+  final TextEditingController otpController = TextEditingController();
+  bool valid = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("OTP Verification"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "Enter the OTP sent to ${widget.phoneNumber}",
+              style: const TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: otpController,
+              keyboardType: TextInputType.number,
+              maxLength: 6,
+              decoration: InputDecoration(
+                  labelText: "OTP",
+                  border: const OutlineInputBorder(),
+                  errorText: valid ? null : "Can't be less than 6 digits"),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () async {
+                String smsCode = otpController.text.trim();
+                setState(() {
+                  valid = true;
+                });
+                if (otpController.text.length < 6) {
+                  setState(() {
+                    valid = false;
+                  });
+                } else {
+                  PhoneAuthCredential credential = PhoneAuthProvider.credential(
+                    verificationId: widget.verificationId,
+                    smsCode: smsCode,
+                  );
+                  try {
+                    await FirebaseAuth.instance
+                        .signInWithCredential(credential);
+                    Query query = FirebaseDatabase.instance.ref('Users');
+                    DataSnapshot? snapshot = (await query
+                            .orderByChild('phone')
+                            .equalTo(widget.phoneNumber)
+                            .once())
+                        .snapshot;
+                    Map<dynamic, dynamic> userData =
+                        snapshot.value as Map<dynamic, dynamic>;
+                    String name = userData.values.first['name'];
+                    String passkey = userData.values.first['password'];
+                    Fluttertoast.showToast(
+                        msg: "Login Success",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.CENTER,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: Colors.green,
+                        textColor: Colors.white,
+                        fontSize: 16.0);
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => HomePage(
+                                name: name,
+                                phone: widget.phoneNumber,
+                                pass: passkey)),
+                        ((route) => false));
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text(
+                          "Invalid OTP",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                        backgroundColor: Colors.red));
+                  }
+                }
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
+              child: const Text(
+                "Verify OTP",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
         ),
       ),
     );

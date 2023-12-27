@@ -10,10 +10,12 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.name, required this.phone});
+  const HomePage(
+      {super.key, required this.name, required this.phone, this.pass});
 
   final String name;
   final String phone;
+  final String? pass;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -22,6 +24,24 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String selectedValue = '1';
   final postController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (widget.pass != null) {
+        await Future<void>.delayed(const Duration(seconds: 1));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+            "Your password is:  ${widget.pass}",
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.white, fontSize: 17),
+          ),
+          backgroundColor: Colors.green,
+        ));
+      }
+    });
+  }
 
   Future<bool?> _showLogoutConfirmationDialog() async {
     return showDialog<bool>(
