@@ -398,6 +398,8 @@ class UpdatePost extends StatefulWidget {
 
 class _UpdatePostState extends State<UpdatePost> {
   final controller = TextEditingController();
+  bool isValid = true;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -407,8 +409,6 @@ class _UpdatePostState extends State<UpdatePost> {
 
   @override
   Widget build(BuildContext context) {
-    bool isValid = true;
-    bool isLoading = false;
     return Dialog(
       child: SingleChildScrollView(
         child: Padding(
@@ -455,8 +455,8 @@ class Post extends StatefulWidget {
 }
 
 class _PostState extends State<Post> {
-  bool isLoading = false;
   bool isValid = true;
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
